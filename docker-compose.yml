@@ -1,0 +1,59 @@
+# (C) Copyright 2023-2024 Hewlett Packard Enterprise Development LP
+version: '3.8'
+services:
+  cds-dev:
+    hostname: cds-dev
+    container_name: natstest-cds-dev
+    image: ghcr.io/hpe-cds/containers-images/cds-proto-dev:latest
+    volumes:
+    - .:/home/dev/ws/natstest
+    - /var/run/docker.sock:/var/run/docker.sock
+    - ${HOME}/.kube/config:/home/dev/.kube/config
+    - ${HOME}/.gitconfig:/home/dev/.gitconfig
+    - ${HOME}/.ssh:/home/dev/.ssh
+    - cds-dev-go:/home/dev/go
+    - cds-dev-cache:/home/dev/.cache
+    - cds-dev-vscode:/home/dev/.vscode-server:rw
+    user: dev
+    working_dir: /home/dev/ws/natstest
+    ports:
+    - "6000:6000" # gRPC
+    - "8000:8000" # REST
+    - "2220:22"   # Remote debugging
+    environment:
+    - HTTP_PROXY
+    - http_proxy
+    - HTTPS_PROXY
+    - https_proxy
+    - NO_PROXY
+    - no_proxy
+    restart: always
+
+  nats-box:
+    hostname: nats-box
+    image: natsio/nats-box:latest
+    command: ["tail", "-f", "/dev/null"]
+    volumes:
+    - ./nats:/build
+    - ./nats/nsc:/nsc
+    profiles:
+    - nats
+
+  nats-server:
+    hostname: nats-server
+    image: nats:2.10.0
+    entrypoint: /nats-server
+    command: "-c /etc/nats/conf/server.conf -js -m 8222"
+    ports:
+    - "4222"
+    - "8222"
+    volumes:
+    - ./nats/keys/:/etc/nats/jwt
+    - ./nats/config/:/etc/nats/conf
+    profiles:
+    - nats
+
+volumes:
+  cds-dev-go: {}
+  cds-dev-cache: {}
+  cds-dev-vscode: {}
