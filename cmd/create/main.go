@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -101,7 +100,7 @@ var consumerCfg = jetstream.ConsumerConfig{
 	// OptStartTime       *time.Time
 
 	// Set the following for ordered message processing
-	AckPolicy:     jetstream.AckExplicitPolicy,
+	// AckPolicy:     jetstream.AckExplicitPolicy,
 	AckWait:       5 * time.Second,
 	MaxDeliver:    3,
 	MaxAckPending: 1,
@@ -149,25 +148,11 @@ func create(ctx context.Context, conn *nats.Conn) error {
 		return err
 	}
 
-	_, streamErr := js.Stream(ctx, stream)
-	if streamErr != nil {
-		if errors.Is(streamErr, jetstream.ErrStreamNotFound) {
-			log.Println("stream not found, creating")
-			_, streamErr = js.CreateStream(ctx, streamCfg)
-			if streamErr != nil && !errors.Is(streamErr, jetstream.ErrStreamNameAlreadyInUse) {
-				log.Println("error creating stream")
-				return streamErr
-			}
-			log.Println("create stream success")
-		}
-	} else {
-		log.Println("stream found, updating")
-		_, streamErr = js.UpdateStream(ctx, streamCfg)
-		if streamErr != nil {
-			log.Println("error updating stream")
-			return streamErr
-		}
-		log.Println("update stream success")
+	log.Println("upserting stream")
+	_, err = js.CreateOrUpdateStream(ctx, streamCfg)
+	if err != nil {
+		log.Println("error upserting stream")
+		return err
 	}
 
 	// TODO: create one consumer for each partition
