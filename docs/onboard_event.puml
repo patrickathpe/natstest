@@ -1,0 +1,10 @@
+@startuml
+start
+:RTM Onboard <<pod>>;
+:rtm.events.onboard <<subject>>;
+:RTMEvents <<stream>>;
+:rtm_events <<consumer>>;
+:Data Processor <<pod>>;
+:Resource <<database>>;
+end
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+start
+:RTM Data Processor <<pod>>;
+:rtm.events.{customerID} <<subject>>;
+:RTMEvents <<stream>>;
+:rtm_events <<consumer>>;
+:Data Processor <<pod>>;
+:Outbox <<database>>;
+:Outbox <<pod>>;
+:webhooks.pub.cloudevent <<subject>>;
+:WebhooksPubEvents <<stream>>;
+:webhooks_pub_cloudevent <<consumer>>;
+:CloudEvent Publisher <<pod>>;
+:webhooks.pub.status <<subject>>;
+:WebhooksPubEvents <<stream>>;
+:webhooks_pub_status <<consumer>>;
+:Data Processor <<pod>>;
+:Outbox <<database>>;
+end
+@enduml
