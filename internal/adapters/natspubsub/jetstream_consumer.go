@@ -1,4 +1,4 @@
-package nats
+package natspubsub
 
 import (
 	"context"
